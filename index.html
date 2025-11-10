@@ -40,9 +40,40 @@
           <div class="panel output-panel">
             <div class="panel-header">
               <h2>Output</h2>
-              <button id="copyBtn" class="btn btn-secondary">Copy</button>
+              <div class="button-group">
+                <button id="viewTextBtn" class="btn btn-secondary active">Text</button>
+                <button id="viewTreeBtn" class="btn btn-secondary">Tree</button>
+                <button id="copyBtn" class="btn btn-secondary">Copy</button>
+              </div>
             </div>
             <div id="output" class="output-area"></div>
+            <div id="treeView" class="tree-view" style="display: none;"></div>
+            <div id="pathSection" class="path-section" style="display: none;">
+              <div class="path-header">
+                <h3>Path Finder</h3>
+              </div>
+              <div class="path-display-box">
+                <label>JSON Path:</label>
+                <input type="text" id="selectedPath" class="path-input" readonly />
+                <button id="copyPathBtn" class="btn btn-sm btn-secondary">Copy</button>
+              </div>
+              <div class="path-display-box">
+                <label>PHP Array Path:</label>
+                <input type="text" id="phpPath" class="path-input" readonly />
+                <button id="copyPhpPathBtn" class="btn btn-sm btn-secondary">Copy</button>
+              </div>
+              <div class="path-search-box">
+                <label>Find by JSON Path:</label>
+                <input type="text" id="searchPath" class="path-input" placeholder="e.g., address.city" />
+                <button id="findPathBtn" class="btn btn-sm btn-primary">Find</button>
+              </div>
+              <div class="path-search-box">
+                <label>Find by PHP Path:</label>
+                <input type="text" id="searchPhpPath" class="path-input" placeholder="e.g., $response['address']['city']" />
+                <button id="findPhpPathBtn" class="btn btn-sm btn-primary">Find</button>
+              </div>
+              <div id="pathResult" class="path-result"></div>
+            </div>
           </div>
 
         <div class="sidebar">

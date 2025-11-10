@@ -5,6 +5,10 @@ class JSONParser {
     this.inputJson = document.getElementById("inputJson");
     this.output = document.getElementById("output");
     this.historyList = document.getElementById("historyList");
+    this.treeView = document.getElementById("treeView");
+    this.pathSection = document.getElementById("pathSection");
+    this.currentParsedData = null;
+    this.currentView = "text";
 
     this.initializeEventListeners();
     this.loadHistory();
@@ -36,6 +40,42 @@ class JSONParser {
 
     // Input change event for real-time error highlighting
     this.inputJson.addEventListener("input", () => this.highlightErrors());
+
+    // View toggle buttons
+    document
+      .getElementById("viewTextBtn")
+      .addEventListener("click", () => this.switchView("text"));
+    document
+      .getElementById("viewTreeBtn")
+      .addEventListener("click", () => this.switchView("tree"));
+
+    // Path finder buttons
+    document
+      .getElementById("copyPathBtn")
+      .addEventListener("click", () => this.copyPath());
+    document
+      .getElementById("copyPhpPathBtn")
+      .addEventListener("click", () => this.copyPhpPath());
+    document
+      .getElementById("findPathBtn")
+      .addEventListener("click", () => this.findByPath());
+    document
+      .getElementById("findPhpPathBtn")
+      .addEventListener("click", () => this.findByPhpPath());
+
+    // Enter key on search path inputs
+    document.getElementById("searchPath").addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        this.findByPath();
+      }
+    });
+    document
+      .getElementById("searchPhpPath")
+      .addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+          this.findByPhpPath();
+        }
+      });
   }
 
   parseJSON() {
@@ -434,6 +474,373 @@ class JSONParser {
     }
 
     return fixed;
+  }
+
+  // Tree View functionality
+  switchView(view) {
+    this.currentView = view;
+
+    const input = this.inputJson.value.trim();
+    if (!input) {
+      this.showError("Please enter JSON data first");
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(input);
+      this.currentParsedData = parsed;
+
+      if (view === "text") {
+        this.output.style.display = "block";
+        this.treeView.style.display = "none";
+        this.pathSection.style.display = "none";
+
+        document.getElementById("viewTextBtn").classList.add("active");
+        document.getElementById("viewTreeBtn").classList.remove("active");
+
+        const formatted = JSON.stringify(parsed, null, 2);
+        const highlighted = this.syntaxHighlight(formatted);
+        this.output.innerHTML = highlighted;
+        this.output.className = "output-area success";
+      } else if (view === "tree") {
+        this.output.style.display = "none";
+        this.treeView.style.display = "block";
+        this.pathSection.style.display = "block";
+
+        document.getElementById("viewTextBtn").classList.remove("active");
+        document.getElementById("viewTreeBtn").classList.add("active");
+
+        this.renderTreeView(parsed);
+        document.getElementById("selectedPath").value = "";
+        document.getElementById("pathResult").textContent = "";
+        document.getElementById("pathResult").className = "path-result";
+      }
+    } catch (error) {
+      this.showError(`JSON Parse Error: ${error.message}`);
+    }
+  }
+
+  renderTreeView(data) {
+    this.treeView.innerHTML = "";
+    const tree = this.buildTreeNode(data, "root", []);
+    this.treeView.appendChild(tree);
+  }
+
+  buildTreeNode(data, key, path) {
+    const container = document.createElement("div");
+
+    if (data === null) {
+      container.innerHTML = `<span class="tree-key" data-path="${path.join(
+        "."
+      )}">${key}</span>: <span class="tree-value null">null</span>`;
+      this.attachPathClickHandler(container, path);
+      return container;
+    }
+
+    const type = typeof data;
+
+    if (type === "object" && !Array.isArray(data)) {
+      // Object
+      const toggle = document.createElement("span");
+      toggle.className = "tree-toggle";
+      toggle.textContent = "▼ ";
+
+      const keySpan = document.createElement("span");
+      keySpan.className = "tree-key";
+      keySpan.textContent = key;
+      keySpan.dataset.path = path.join(".");
+
+      const childrenContainer = document.createElement("div");
+      childrenContainer.className = "tree-children";
+
+      toggle.addEventListener("click", () => {
+        childrenContainer.classList.toggle("collapsed");
+        toggle.textContent = childrenContainer.classList.contains("collapsed")
+          ? "▶ "
+          : "▼ ";
+      });
+
+      container.appendChild(toggle);
+      container.appendChild(keySpan);
+      container.appendChild(document.createTextNode(": {"));
+
+      const entries = Object.entries(data);
+      entries.forEach(([k, v], index) => {
+        const newPath = [...path, k];
+        const childNode = this.buildTreeNode(v, k, newPath);
+        childrenContainer.appendChild(childNode);
+      });
+
+      container.appendChild(childrenContainer);
+      container.appendChild(document.createTextNode("}"));
+
+      this.attachPathClickHandler(keySpan, path);
+    } else if (Array.isArray(data)) {
+      // Array
+      const toggle = document.createElement("span");
+      toggle.className = "tree-toggle";
+      toggle.textContent = "▼ ";
+
+      const keySpan = document.createElement("span");
+      keySpan.className = "tree-key";
+      keySpan.textContent = key;
+      keySpan.dataset.path = path.join(".");
+
+      const childrenContainer = document.createElement("div");
+      childrenContainer.className = "tree-children";
+
+      toggle.addEventListener("click", () => {
+        childrenContainer.classList.toggle("collapsed");
+        toggle.textContent = childrenContainer.classList.contains("collapsed")
+          ? "▶ "
+          : "▼ ";
+      });
+
+      container.appendChild(toggle);
+      container.appendChild(keySpan);
+      container.appendChild(document.createTextNode(`: [${data.length}]`));
+
+      data.forEach((item, index) => {
+        const newPath = [...path, index.toString()];
+        const childNode = this.buildTreeNode(item, `[${index}]`, newPath);
+        childrenContainer.appendChild(childNode);
+      });
+
+      container.appendChild(childrenContainer);
+
+      this.attachPathClickHandler(keySpan, path);
+    } else {
+      // Primitive value
+      const keySpan = document.createElement("span");
+      keySpan.className = "tree-key";
+      keySpan.textContent = key;
+      keySpan.dataset.path = path.join(".");
+
+      const valueSpan = document.createElement("span");
+      valueSpan.className = `tree-value ${type}`;
+      valueSpan.textContent = type === "string" ? `"${data}"` : String(data);
+
+      container.appendChild(keySpan);
+      container.appendChild(document.createTextNode(": "));
+      container.appendChild(valueSpan);
+
+      this.attachPathClickHandler(keySpan, path);
+    }
+
+    return container;
+  }
+
+  attachPathClickHandler(element, path) {
+    element.addEventListener("click", (e) => {
+      e.stopPropagation();
+
+      // Remove previous selection
+      document.querySelectorAll(".tree-key.selected").forEach((el) => {
+        el.classList.remove("selected");
+      });
+
+      // Add selection to clicked element
+      element.classList.add("selected");
+
+      // Display JSON path
+      const pathStr = path.length > 0 ? path.join(".") : "root";
+      document.getElementById("selectedPath").value = pathStr;
+
+      // Display PHP array path
+      const phpPath = this.convertToPhpPath(path);
+      document.getElementById("phpPath").value = phpPath;
+
+      // Show value
+      const value = this.getValueByPath(this.currentParsedData, path);
+      const resultDiv = document.getElementById("pathResult");
+      resultDiv.className = "path-result success";
+      resultDiv.textContent = JSON.stringify(value, null, 2);
+    });
+  }
+
+  convertToPhpPath(path) {
+    if (path.length === 0) {
+      return "$response";
+    }
+
+    let phpPath = "$response";
+    for (const key of path) {
+      // Check if key is numeric (array index)
+      if (/^\d+$/.test(key)) {
+        phpPath += `[${key}]`;
+      } else {
+        phpPath += `['${key}']`;
+      }
+    }
+    return phpPath;
+  }
+
+  convertPhpPathToArray(phpPath) {
+    // Remove $response and any whitespace
+    let cleaned = phpPath.trim().replace(/^\$\w+/, "");
+
+    if (!cleaned) {
+      return [];
+    }
+
+    // Extract all keys from ['key'] or [index] format
+    const matches = cleaned.match(/\[([^\]]+)\]/g);
+    if (!matches) {
+      return [];
+    }
+
+    return matches.map((match) => {
+      // Remove brackets and quotes
+      const key = match.slice(1, -1).replace(/^['"]|['"]$/g, "");
+      return key;
+    });
+  }
+
+  copyPath() {
+    const pathInput = document.getElementById("selectedPath");
+    const path = pathInput.value;
+
+    if (!path) {
+      return;
+    }
+
+    navigator.clipboard.writeText(path).then(() => {
+      // Visual feedback
+      pathInput.select();
+      setTimeout(() => {
+        window.getSelection().removeAllRanges();
+      }, 500);
+    });
+  }
+
+  copyPhpPath() {
+    const pathInput = document.getElementById("phpPath");
+    const path = pathInput.value;
+
+    if (!path) {
+      return;
+    }
+
+    navigator.clipboard.writeText(path).then(() => {
+      // Visual feedback
+      pathInput.select();
+      setTimeout(() => {
+        window.getSelection().removeAllRanges();
+      }, 500);
+    });
+  }
+
+  findByPath() {
+    const pathInput = document.getElementById("searchPath").value.trim();
+    const resultDiv = document.getElementById("pathResult");
+
+    if (!pathInput) {
+      resultDiv.className = "path-result error";
+      resultDiv.textContent = "Please enter a path";
+      return;
+    }
+
+    if (!this.currentParsedData) {
+      resultDiv.className = "path-result error";
+      resultDiv.textContent = "No JSON data loaded";
+      return;
+    }
+
+    try {
+      const pathParts = pathInput.split(".").filter((p) => p.length > 0);
+      const value = this.getValueByPath(this.currentParsedData, pathParts);
+
+      if (value === undefined) {
+        resultDiv.className = "path-result error";
+        resultDiv.textContent = "Path not found";
+      } else {
+        resultDiv.className = "path-result success";
+        resultDiv.textContent = JSON.stringify(value, null, 2);
+
+        // Highlight in tree if possible
+        const pathStr = pathParts.join(".");
+        const targetElement = document.querySelector(
+          `.tree-key[data-path="${pathStr}"]`
+        );
+        if (targetElement) {
+          document.querySelectorAll(".tree-key.selected").forEach((el) => {
+            el.classList.remove("selected");
+          });
+          targetElement.classList.add("selected");
+          document.getElementById("selectedPath").value = pathStr;
+          targetElement.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }
+    } catch (error) {
+      resultDiv.className = "path-result error";
+      resultDiv.textContent = "Error: " + error.message;
+    }
+  }
+
+  findByPhpPath() {
+    const phpPathInput = document.getElementById("searchPhpPath").value.trim();
+    const resultDiv = document.getElementById("pathResult");
+
+    if (!phpPathInput) {
+      resultDiv.className = "path-result error";
+      resultDiv.textContent = "Please enter a PHP path";
+      return;
+    }
+
+    if (!this.currentParsedData) {
+      resultDiv.className = "path-result error";
+      resultDiv.textContent = "No JSON data loaded";
+      return;
+    }
+
+    try {
+      const pathParts = this.convertPhpPathToArray(phpPathInput);
+      const value = this.getValueByPath(this.currentParsedData, pathParts);
+
+      if (value === undefined) {
+        resultDiv.className = "path-result error";
+        resultDiv.textContent = "Path not found";
+      } else {
+        resultDiv.className = "path-result success";
+        resultDiv.textContent = JSON.stringify(value, null, 2);
+
+        // Update both path displays
+        const jsonPath = pathParts.join(".");
+        document.getElementById("selectedPath").value = jsonPath;
+        document.getElementById("phpPath").value =
+          this.convertToPhpPath(pathParts);
+
+        // Highlight in tree if possible
+        const targetElement = document.querySelector(
+          `.tree-key[data-path="${jsonPath}"]`
+        );
+        if (targetElement) {
+          document.querySelectorAll(".tree-key.selected").forEach((el) => {
+            el.classList.remove("selected");
+          });
+          targetElement.classList.add("selected");
+          targetElement.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }
+    } catch (error) {
+      resultDiv.className = "path-result error";
+      resultDiv.textContent = "Error: " + error.message;
+    }
+  }
+
+  getValueByPath(obj, path) {
+    if (path.length === 0) {
+      return obj;
+    }
+
+    let current = obj;
+    for (const key of path) {
+      if (current === null || current === undefined) {
+        return undefined;
+      }
+      current = current[key];
+    }
+    return current;
   }
 }
 
