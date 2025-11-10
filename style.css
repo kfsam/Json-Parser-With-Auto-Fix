@@ -13,7 +13,7 @@ body {
 }
 
 .container {
-  max-width: 1400px;
+  max-width: 1600px;
   margin: 0 auto;
 }
 
@@ -58,7 +58,7 @@ header p {
 
 .sidebar {
   flex: 2;
-  min-width: 0;
+  min-width: 250px;
 }
 
 .panel {
@@ -432,6 +432,16 @@ header p {
     flex-direction: column;
   }
 
+  .editor-section {
+    flex-direction: column;
+  }
+
+  .panel.input-panel,
+  .panel.output-panel {
+    width: 100%;
+    flex: 1;
+  }
+
   .sidebar {
     width: 100%;
     max-height: 400px;
@@ -443,16 +453,118 @@ header p {
 }
 
 @media (max-width: 768px) {
+  body {
+    padding: 10px;
+  }
+
+  header {
+    margin-bottom: 20px;
+  }
+
   header h1 {
-    font-size: 2rem;
+    font-size: 1.8rem;
+  }
+
+  header p {
+    font-size: 1rem;
+  }
+
+  .main-content {
+    gap: 15px;
+  }
+
+  .editor-section {
+    gap: 15px;
+  }
+
+  .panel-header {
+    padding: 12px 15px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .panel-header h2 {
+    font-size: 1.1rem;
   }
 
   .button-group {
     flex-wrap: wrap;
+    width: 100%;
+    justify-content: flex-start;
   }
 
   .btn {
     padding: 6px 12px;
     font-size: 0.85rem;
+  }
+
+  #inputJson,
+  .output-area,
+  .tree-view {
+    min-height: 250px;
+    font-size: 13px;
+  }
+
+  .path-input {
+    width: calc(100% - 80px);
+    font-size: 0.85rem;
+  }
+
+  .btn-sm {
+    padding: 5px 10px;
+    font-size: 0.8rem;
+  }
+
+  .history-list {
+    padding: 8px;
+  }
+
+  .history-item {
+    padding: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  header h1 {
+    font-size: 1.5rem;
+  }
+
+  header p {
+    font-size: 0.9rem;
+  }
+
+  .panel-header h2 {
+    font-size: 1rem;
+  }
+
+  .btn {
+    padding: 5px 10px;
+    font-size: 0.8rem;
+  }
+
+  #inputJson,
+  .output-area,
+  .tree-view {
+    min-height: 200px;
+    padding: 15px;
+    font-size: 12px;
+  }
+
+  .path-input {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+
+  .path-display-box,
+  .path-search-box {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .path-display-box .btn-sm,
+  .path-search-box .btn-sm {
+    width: 100%;
+    margin-top: 5px;
   }
 }
