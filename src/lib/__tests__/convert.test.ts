@@ -32,4 +32,8 @@ describe('convert module', () => {
     expect(r.ok).toBe(true);
     if (r.ok) expect(JSON.parse(r.output)).toEqual([{ a: '1', b: '2' }, { a: '3', b: '4' }]);
   });
+  it('toJsonFromYaml rejects empty input', () => {
+    const r = toJsonFromYaml('');
+    expect(r.ok).toBe(false);
+  });
 });

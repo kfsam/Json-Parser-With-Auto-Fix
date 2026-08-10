@@ -13,6 +13,7 @@ export function toYamlFromJson(input: string): Conv {
 export function toJsonFromYaml(input: string): Conv {
   try {
     const value = yaml.load(input);
+    if (value === undefined) return { ok: false, error: 'Empty input' };
     return { ok: true, output: JSON.stringify(value, null, 2) };
   } catch (e) { return { ok: false, error: (e as Error).message }; }
 }

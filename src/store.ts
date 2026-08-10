@@ -19,8 +19,10 @@ export const useStore = create<AppState>((set, get) => ({
   history: loadHistory(),
   historyOpen: false,
   selectedPath: null,
+  convertOutput: null,
 
   setRawInput: (s) => set({ rawInput: s }),
+  setConvertOutput: (o) => set({ convertOutput: o }),
 
   saveHistory: (data) => {
     const item = makeHistoryItem(data, nowMs(), timestampIso());
@@ -63,7 +65,7 @@ export const useStore = create<AppState>((set, get) => ({
     get().saveHistory(pretty);
   },
 
-  clear: () => set({ rawInput: '', parsed: null, parseError: null, selectedPath: null }),
+  clear: () => set({ rawInput: '', parsed: null, parseError: null, selectedPath: null, convertOutput: null }),
   loadIntoEditor: (s) => set({ rawInput: s }),
   setView: (v) => set({ view: v }),
   toggleHistory: () => set((s) => ({ historyOpen: !s.historyOpen })),

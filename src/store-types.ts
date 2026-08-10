@@ -8,7 +8,9 @@ export interface AppState {
   history: HistoryItem[];
   historyOpen: boolean;
   selectedPath: SelectedPath | null;
+  convertOutput: { title: string; text: string } | null;
   setRawInput(s: string): void;
+  setConvertOutput(o: { title: string; text: string } | null): void;
   saveHistory(data: string): void;
   parse(): void;
   reformat(): void;
