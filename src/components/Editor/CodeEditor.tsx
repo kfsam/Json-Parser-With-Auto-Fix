@@ -3,7 +3,7 @@ import { EditorState, Compartment } from '@codemirror/state';
 import { EditorView, keymap, lineNumbers } from '@codemirror/view';
 import { defaultKeymap, historyKeymap } from '@codemirror/commands';
 import { json } from '@codemirror/lang-json';
-import { linter, lintGutter } from '@codemirror/lint';
+import { linter, lintGutter, lintKeymap } from '@codemirror/lint';
 import { useStore } from '../../store';
 import { useTheme } from '../../theme/ThemeContext';
 import { cmThemeFor } from '../../theme/cmTheme';
@@ -32,7 +32,7 @@ export default function CodeEditor() {
         doc: rawInput,
         extensions: [
           lineNumbers(),
-          historyKeymap.length ? keymap.of([...defaultKeymap, ...historyKeymap]) : keymap.of(defaultKeymap),
+          keymap.of([...defaultKeymap, ...historyKeymap, ...lintKeymap]),
           json(),
           lintGutter(),
           jsonLinter,
