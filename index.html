@@ -1,95 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="en" data-theme="midnight">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>JSON Parser</title>
-    <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <div class="container">
-      <header>
-        <h1>JSON Parser</h1>
-        <p>Parse, format, and validate JSON data</p>
-      </header>
-
-      <div class="main-content">
-        <div class="editor-section">
-          <div class="panel input-panel">
-            <div class="panel-header">
-              <h2>Input JSON</h2>
-              <div class="button-group">
-                <button id="parseBtn" class="btn btn-primary">
-                  Parse JSON
-                </button>
-                <button id="formatBtn" class="btn btn-secondary">Format</button>
-                <button id="minifyBtn" class="btn btn-secondary">Minify</button>
-                <button id="autoFixBtn" class="btn btn-secondary">Auto Fix</button>
-                <button id="clearBtn" class="btn btn-danger">Clear</button>
-              </div>
-            </div>
-            <div class="input-wrapper">
-              <textarea
-                id="inputJson"
-                placeholder='Enter JSON here, e.g., {"name": "John", "age": 30}'
-              ></textarea>
-              <div id="errorHighlight" class="error-highlight"></div>
-            </div>
-          </div>
-
-          <div class="panel output-panel">
-            <div class="panel-header">
-              <h2>Output</h2>
-              <div class="button-group">
-                <button id="viewTextBtn" class="btn btn-secondary active">Text</button>
-                <button id="viewTreeBtn" class="btn btn-secondary">Tree</button>
-                <button id="copyBtn" class="btn btn-secondary">Copy</button>
-              </div>
-            </div>
-            <div id="output" class="output-area"></div>
-            <div id="treeView" class="tree-view" style="display: none;"></div>
-            <div id="pathSection" class="path-section" style="display: none;">
-              <div class="path-header">
-                <h3>Path Finder</h3>
-              </div>
-              <div class="path-display-box">
-                <label>JSON Path:</label>
-                <input type="text" id="selectedPath" class="path-input" readonly />
-                <button id="copyPathBtn" class="btn btn-sm btn-secondary">Copy</button>
-              </div>
-              <div class="path-display-box">
-                <label>PHP Array Path:</label>
-                <input type="text" id="phpPath" class="path-input" readonly />
-                <button id="copyPhpPathBtn" class="btn btn-sm btn-secondary">Copy</button>
-              </div>
-              <div class="path-search-box">
-                <label>Find by JSON Path:</label>
-                <input type="text" id="searchPath" class="path-input" placeholder="e.g., address.city" />
-                <button id="findPathBtn" class="btn btn-sm btn-primary">Find</button>
-              </div>
-              <div class="path-search-box">
-                <label>Find by PHP Path:</label>
-                <input type="text" id="searchPhpPath" class="path-input" placeholder="e.g., $response['address']['city']" />
-                <button id="findPhpPathBtn" class="btn btn-sm btn-primary">Find</button>
-              </div>
-              <div id="pathResult" class="path-result"></div>
-            </div>
-          </div>
-
-        <div class="sidebar">
-          <div class="panel history-panel">
-            <div class="panel-header">
-              <h2>History</h2>
-              <button id="clearHistoryBtn" class="btn btn-danger btn-sm">
-                Clear All
-              </button>
-            </div>
-            <div id="historyList" class="history-list"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <script src="script.js"></script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
