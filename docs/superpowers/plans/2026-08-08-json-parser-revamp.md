@@ -2367,8 +2367,9 @@ Verify in the browser:
 
 Run:
 ```bash
-git rm index.html script.js style.css
+git rm script.js style.css
 ```
+(The rebuilt `index.html` already replaced the legacy one in Task 1 — do not remove it.)
 Replace `README.md` with:
 ```markdown
 # Json-Parser-With-Auto-Fix
