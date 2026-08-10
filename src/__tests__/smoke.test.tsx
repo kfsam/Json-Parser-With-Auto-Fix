@@ -1,7 +1,11 @@
+import { describe, expect, it } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import App from '../App';
 
-test('renders scaffolding marker', () => {
-  render(<App />);
-  expect(screen.getByText(/scaffolding OK/i)).toBeInTheDocument();
+describe('App', () => {
+  it('renders the app shell (header + editor)', () => {
+    const { container } = render(<App />);
+    expect(screen.getByText(/JSON Parser/i)).toBeInTheDocument();
+    expect(container.querySelector('.cm-editor')).toBeInTheDocument();
+  });
 });
